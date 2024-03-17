@@ -5,14 +5,74 @@
 {% block body %}
 
 <div id="app">
-
-    <select>
-        <option v-for="{ name, code } in countries" value="${ code }">${ name }</option>
-    </select>
-
     <form action="#">
-        ${ message }
-        <input type="text">
+        <div>
+            <label for="originCountry">Origin Country</label>
+            <select id="originCountry" v-model="originCountry">
+                <option v-for="country in countries2" :value="country.code">${ country.name }</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="destCountry">Destination Country</label>
+            <select id="destCountry" v-model="destCountry">
+                <option v-for="country in countries1" :value="country.code">${ country.name }</option>
+            </select>
+        </div>
+
+        <div>
+            {# First entry date #}
+            <input v-model="entry1" type="date" value="${ entry1 }">
+            to
+            {# Exit date #}
+            <input v-model="exit1" type="date" value="${ exit1 }">
+
+            ${ period1 }
+        </div>
+
+        <div>
+            {# Second entry date #}
+            <input v-model="entry2" type="date" value="${ entry2 }">
+            to
+            {# Exit date #}
+            <input v-model="exit2" type="date" value="${ exit2 }">
+
+            ${ period2 }
+        </div>
+
+        <div>
+            {# Third entry date #}
+            <input v-model="entry3" type="date" value="${ entry3 }">
+            to
+            {# Exit date #}
+            <input v-model="exit3" type="date" value="${ exit3 }">
+
+            ${ period3 }
+        </div>
+
+        <div>
+            {# Fourth entry date #}
+            <input v-model="entry4" type="date">
+            to
+            {# Exit date #}
+            <input v-model="exit4" type="date">
+
+            ${ period4 }
+        </div>
+
+        <div>
+            {# Fifth entry date #}
+            <input v-model="entry5" type="date">
+            to
+            {# Exit date #}
+            <input v-model="exit5" type="date">
+
+            ${ period5 }
+        </div>
+
+        <div>
+            You can stay in ${ destCountry } for X days and have stayed a total of ${ totalElapsedDays } days
+        </div>
     </form>
 </div>
 
@@ -28,11 +88,86 @@ createApp({
         }
     },
     data: () => ({
-        countries: [
-            {name: 'Kyrgyzstan', code: 'kg'},
+        // Initial values
+        entry1: '2024-02-26',
+        exit1: '2024-03-24',
+        entry2: '0000-00-00',
+        exit2: '0000-00-00',
+        entry3: '0000-00-00',
+        exit3: '0000-00-00',
+        entry4: '0000-00-00',
+        exit4: '0000-00-00',
+        entry5: '0000-00-00',
+        exit5: '0000-00-00',
+        originCountry: 'ph',
+        destCountry: 'kz',
+
+        // Data
+        countries1: [
+            {
+                name: 'Kyrgyzstan',
+                code: 'kg',
+                visaExemptions: [
+                    {country: 'kz', interval: 90, numberOfDays: 90, period: 180, notes: ''},
+                    {country: 'us', interval: 60, numberOfDays: 60, period: 120, notes: ''},
+                    {country: 'hk', interval: 30, numberOfDays: 30, period: 30, notes: 'VOA'},
+                    {country: 'ph', interval: 30, numberOfDays: 30, period: 30, notes: ''},
+                ],
+            },
+            {
+                name: 'Kazakhstan',
+                code: 'kz',
+                visaExemptions: [
+                    {country: 'us', interval: 30, numberOfDays: 90, period: 180, notes: ''},
+                    {country: 'ph', interval: 30, numberOfDays: 90, period: 180, notes: ''},
+                    {country: 'kg', interval: 90, numberOfDays: 90, period: 180, notes: ''},
+                ],
+            },
+        ],
+        countries2: [
+            {name: 'United States', code: 'us'},
+            {name: 'Philippines', code: 'ph'},
+            {name: 'Kyrgyzstan', code: 'kh'},
             {name: 'Kazakhstan', code: 'kz'},
         ],
     }),
+    computed: {
+        period1() {
+            return this.computeDate(this.entry1, this.exit1)
+        },
+        period2() {
+            return this.computeDate(this.entry2, this.exit2)
+        },
+        period3() {
+            return this.computeDate(this.entry3, this.exit3)
+        },
+        period4() {
+            return this.computeDate(this.entry4, this.exit4)
+        },
+        period5() {
+            return this.computeDate(this.entry5, this.exit5)
+        },
+        totalElapsedDays() {
+            let totalDays = 0
+            if(this.period1) totalDays += this.period1
+            if(this.period2) totalDays += this.period2
+            if(this.period3) totalDays += this.period3
+            if(this.period4) totalDays += this.period4
+            if(this.period5) totalDays += this.period5
+
+            return totalDays
+        }
+    },
+    methods: {
+        computeDate(dateString1, dateString2) {
+            const date1 = new Date(dateString1)
+            const date2 = new Date(dateString2)
+            const elapsedMilliseconds = date2 - date1
+            const elapsedDays = elapsedMilliseconds / 86400000
+
+            return elapsedDays ? elapsedDays : 0
+        },
+    },
     delimiters: ['${', '}']
 }).mount('#app')
 
