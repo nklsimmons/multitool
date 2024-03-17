@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello VisaController!{% endblock %}
+
+{% block body %}
+
+<div id="app">
+
+    <select>
+        <option v-for="{ name, code } in countries" value="${ code }">${ name }</option>
+    </select>
+
+    <form action="#">
+        ${ message }
+        <input type="text">
+    </form>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp, ref } = Vue
+
+createApp({
+    setup() {
+        const message = ref('Hello vue!')
+        return {
+            message
+        }
+    },
+    data: () => ({
+        countries: [
+            {name: 'Kyrgyzstan', code: 'kg'},
+            {name: 'Kazakhstan', code: 'kz'},
+        ],
+    }),
+    delimiters: ['${', '}']
+}).mount('#app')
+
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+</head>
+<body>
+
+    <div>
+
+        {#
+
+        1. Show banks in a country
+        2. Show foreign withdrawal fees for each bank's ATMs
+        3. Show exchange rates for each bank
+        4. Show where to find ATMs
+
+        DB Tables:
+            - Countries: Name, Code, Currency
+            - Bank: Name, Country, Withdrawal fee, Withdrawal limit
+            - Exchange Rates: Bank (or null if official), Currency1 (local), Currency2 (foreign), Timestamp
+            - ATM: Bank, Coords
+
+            How to represent additional fees
+        #}
+
+        <h1>ATM Finder</h1>
+        <a href="/bank">
+            <button type="button">Banks</button>
+        </a>
+        <a href="/country">
+            <button type="button">Countries</button>
+        </a>
+    </div>
+
+    <div>
+
+        {#
+
+        90/180
+
+        Enter where you're going, where you're from, and how long you're staying there
+        Shows how long you can stay in each place
+
+        #}
+
+        <h1>Visa Stay Calculator</h1>
+        <a href="/visa">
+            <button type="button">Visa</button>
+        </a>
+    </div>
+
+    <div>
+
+        {#
+
+        90/180
+
+        Enter where you're going, where you're from, and how long you're staying there
+        Shows how long you can stay in each place
+
+        #}
+
+        <h1>Currency Converter</h1>
+        <a href="/currency">
+            <button type="button">Currency</button>
+        </a>
+    </div>
+
+    {#
+
+    Blog
+
+    #}
+
+</body>
+</html>
