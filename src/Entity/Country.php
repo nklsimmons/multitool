@@ -6,7 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(paginationEnabled: false)]
 class Country
 {
     #[ORM\Id]

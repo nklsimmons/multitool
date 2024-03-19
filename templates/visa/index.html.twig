@@ -9,15 +9,17 @@
         <div>
             <label for="originCountry">Origin Country</label>
             <select id="originCountry" v-model="originCountry">
-                <option v-for="country in countries2" :value="country.code">${ country.name }</option>
+                <option v-for="country in countries" :value="country.code">${ country.name }</option>
             </select>
         </div>
 
         <div>
             <label for="destCountry">Destination Country</label>
             <select id="destCountry" v-model="destCountry">
-                <option v-for="country in countries1" :value="country.code">${ country.name }</option>
+                <option v-for="country in countries" :value="country.code">${ country.name }</option>
             </select>
+
+
         </div>
 
         <div>
@@ -80,12 +82,11 @@
 <script>
 const { createApp, ref } = Vue
 
-createApp({
-    setup() {
-        const message = ref('Hello vue!')
-        return {
-            message
-        }
+const app = createApp({
+    created() {
+        fetch('/api/countries')
+            .then(res => res.json())
+            .then(json => { this.countries = json["hydra:member"] })
     },
     data: () => ({
         // Initial values
@@ -99,8 +100,10 @@ createApp({
         exit4: '0000-00-00',
         entry5: '0000-00-00',
         exit5: '0000-00-00',
-        originCountry: 'ph',
-        destCountry: 'kz',
+        originCountry: 'PH',
+        destCountry: 'KZ',
+
+        countries: [],
 
         // Data
         countries1: [
@@ -169,7 +172,8 @@ createApp({
         },
     },
     delimiters: ['${', '}']
-}).mount('#app')
+})
+app.mount('#app')
 
 </script>
 {% endblock %}
