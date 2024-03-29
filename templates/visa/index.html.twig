@@ -18,62 +18,31 @@
             <select id="destCountry" v-model="destCountry">
                 <option v-for="country in countries" :value="country.code">${ country.name }</option>
             </select>
-
-
         </div>
 
-        <div>
+        <div v-for="stayPeriod in stayPeriods">
             {# First entry date #}
-            <input v-model="entry1" type="date" value="${ entry1 }">
+            <input v-model="stayPeriod.entry" type="date" value="${ stayPeriod.entry }">
             to
             {# Exit date #}
-            <input v-model="exit1" type="date" value="${ exit1 }">
+            <input v-model="stayPeriod.exit" type="date" value="${ stayPeriod.exit }">
 
-            ${ period1 }
+            ${ dateMinusDate(stayPeriod.entry, stayPeriod.exit) }
         </div>
 
         <div>
-            {# Second entry date #}
-            <input v-model="entry2" type="date" value="${ entry2 }">
-            to
-            {# Exit date #}
-            <input v-model="exit2" type="date" value="${ exit2 }">
-
-            ${ period2 }
+            <button type="button" @click="addStayRow">Add Row</button>
         </div>
 
         <div>
-            {# Third entry date #}
-            <input v-model="entry3" type="date" value="${ entry3 }">
-            to
-            {# Exit date #}
-            <input v-model="exit3" type="date" value="${ exit3 }">
-
-            ${ period3 }
+            Citizens of ${ originCountry } can stay in ${ destCountry } for ${ visaDetails.maxStay } days at a time over a period of
+            ${ visaDetails.maxDays } days, which resets after ${ visaDetails.resetPeriod } days
         </div>
-
         <div>
-            {# Fourth entry date #}
-            <input v-model="entry4" type="date">
-            to
-            {# Exit date #}
-            <input v-model="exit4" type="date">
-
-            ${ period4 }
+            According to the planner you will stay for a total of ${ totalDaysStayed } days, which leaves you with ${ visaDetails.maxDays - totalDaysStayed } more days remaining
         </div>
-
         <div>
-            {# Fifth entry date #}
-            <input v-model="entry5" type="date">
-            to
-            {# Exit date #}
-            <input v-model="exit5" type="date">
-
-            ${ period5 }
-        </div>
-
-        <div>
-            You can stay in ${ destCountry } for X days and have stayed a total of ${ totalElapsedDays } days
+            Your ${ visaDetails.resetPeriod } day period will reset on ${ resetDate }
         </div>
     </form>
 </div>
@@ -81,6 +50,8 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script>
 const { createApp, ref } = Vue
+
+const MILLISECONDS_IN_A_DAY = 86400000
 
 const app = createApp({
     created() {
@@ -90,86 +61,65 @@ const app = createApp({
     },
     data: () => ({
         // Initial values
-        entry1: '2024-02-26',
-        exit1: '2024-03-24',
-        entry2: '0000-00-00',
-        exit2: '0000-00-00',
-        entry3: '0000-00-00',
-        exit3: '0000-00-00',
-        entry4: '0000-00-00',
-        exit4: '0000-00-00',
-        entry5: '0000-00-00',
-        exit5: '0000-00-00',
         originCountry: 'PH',
         destCountry: 'KZ',
 
         countries: [],
 
-        // Data
-        countries1: [
-            {
-                name: 'Kyrgyzstan',
-                code: 'kg',
-                visaExemptions: [
-                    {country: 'kz', interval: 90, numberOfDays: 90, period: 180, notes: ''},
-                    {country: 'us', interval: 60, numberOfDays: 60, period: 120, notes: ''},
-                    {country: 'hk', interval: 30, numberOfDays: 30, period: 30, notes: 'VOA'},
-                    {country: 'ph', interval: 30, numberOfDays: 30, period: 30, notes: ''},
-                ],
-            },
-            {
-                name: 'Kazakhstan',
-                code: 'kz',
-                visaExemptions: [
-                    {country: 'us', interval: 30, numberOfDays: 90, period: 180, notes: ''},
-                    {country: 'ph', interval: 30, numberOfDays: 90, period: 180, notes: ''},
-                    {country: 'kg', interval: 90, numberOfDays: 90, period: 180, notes: ''},
-                ],
-            },
+        stayPeriods: [
+            { entry: '2024-02-26', exit: '2024-03-24' },
         ],
-        countries2: [
-            {name: 'United States', code: 'us'},
-            {name: 'Philippines', code: 'ph'},
-            {name: 'Kyrgyzstan', code: 'kh'},
-            {name: 'Kazakhstan', code: 'kz'},
+
+        visaExemptions: [
+            // Citizens of ${ originCountry } can stay in ${ destCountry } for A days at a time over a period of B days, which resets after C days
+            {destCountry: 'KZ', originCountry: 'PH', maxStay: 30, maxDays: 90, resetPeriod: 180,  notes: ''},
+            {destCountry: 'KZ', originCountry: 'US', maxStay: 30, maxDays: 90, resetPeriod: 180, notes: ''},
+
+            {destCountry: 'KG', originCountry: 'PH', maxStay: 30, maxDays: 30, resetPeriod: 30,  notes: ''},
+            {destCountry: 'KG', originCountry: 'US', maxStay: 60, maxDays: 60, resetPeriod: 120, notes: ''},
         ],
+
     }),
     computed: {
-        period1() {
-            return this.computeDate(this.entry1, this.exit1)
-        },
-        period2() {
-            return this.computeDate(this.entry2, this.exit2)
-        },
-        period3() {
-            return this.computeDate(this.entry3, this.exit3)
-        },
-        period4() {
-            return this.computeDate(this.entry4, this.exit4)
-        },
-        period5() {
-            return this.computeDate(this.entry5, this.exit5)
-        },
-        totalElapsedDays() {
+        totalDaysStayed() {
             let totalDays = 0
-            if(this.period1) totalDays += this.period1
-            if(this.period2) totalDays += this.period2
-            if(this.period3) totalDays += this.period3
-            if(this.period4) totalDays += this.period4
-            if(this.period5) totalDays += this.period5
+
+            for(const period of this.stayPeriods) {
+                totalDays += this.dateMinusDate(period.entry, period.exit)
+            }
 
             return totalDays
+        },
+        resetDate() {
+            return new Date(this.datePlusDays(this.stayPeriods[0].entry, this.visaDetails.resetPeriod)).toDateString()
+        },
+        visaDetails() {
+            for(let data of this.visaExemptions) {
+                if(data.destCountry === this.destCountry && data.originCountry === this.originCountry) {
+                    return data
+                }
+            }
         }
     },
     methods: {
-        computeDate(dateString1, dateString2) {
+        dateMinusDate(dateString1, dateString2) {
             const date1 = new Date(dateString1)
             const date2 = new Date(dateString2)
             const elapsedMilliseconds = date2 - date1
-            const elapsedDays = elapsedMilliseconds / 86400000
+            const elapsedDays = elapsedMilliseconds / MILLISECONDS_IN_A_DAY
 
             return elapsedDays ? elapsedDays : 0
         },
+        datePlusDays(dateString1, days) {
+            const date1 = new Date(dateString1);
+            return date1.getTime() + (days * MILLISECONDS_IN_A_DAY)
+        },
+        addStayRow() {
+            this.stayPeriods.push({
+                entry: "0000-00-00",
+                exit: "0000-00-00",
+            })
+        }
     },
     delimiters: ['${', '}']
 })
